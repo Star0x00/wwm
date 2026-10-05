@@ -1,0 +1,69 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-linux
+          - aarch64-linux
+          - x86_64-windows
+          - aarch64-macos
+          - x86_64-macos
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+
+      - name: Build
+        run: zig build -Dtarget=${{ matrix.target }} -Doptimize=ReleaseFast --prefix out
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          name="wwm-${{ matrix.target }}"
+          mkdir -p dist
+          case "${{ matrix.target }}" in
+            *windows*)
+              cp out/bin/wwm.exe "dist/$name.exe"
+              (cd dist && zip -q "$name.zip" "$name.exe")
+              rm "dist/$name.exe"
+              ;;
+            *)
+              cp out/bin/wwm "dist/$name"
+              (cd dist && tar -czf "$name.tar.gz" "$name")
+              rm "dist/$name"
+              ;;
+          esac
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
