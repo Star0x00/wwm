@@ -1,0 +1,92 @@
+.{
+    // 鸣潮 (CN / 官服) 3.7.0 资源档位 endpoint 汇总
+    // 来源: 3.0.1.0 启动器 KRApp.conf -> configUrl -> bundle 配置
+    // KRApp.conf = base64 解码后逐字节 XOR 0x63 得到 JSON
+
+    .game = .{
+        .server       = "cn",
+        .game_id      = "G152",
+        .res_id       = 10003,
+        .app_id       = 10003,
+        .game_version = "3.7.0",
+    },
+
+    .launcher = .{
+        .version   = "3.0.1.0",
+        .krapp_rel = "<launcher_root>/<launcher_version>/Assets/KRApp.conf",
+        .encoding  = "base64(xor(raw, 0x63))",
+        .app_key   = "oLNgHF1CESo51DGHN2odtp40e3oI1HfZ",
+    },
+
+    // 旧扁平游戏清单 (全量下载 / sync 用的, 即 common+hd 的基础)
+    .game_index_url = "https://prod-cn-alicdn-gamestarter.kurogame.com/launcher/game/G152/10003_Y8xXrXk65DqFHEDgApn3cpK5lfczpFx5/index.json",
+
+    // 档位 bundle 配置 (从 KRApp.conf games[0].configUrl 得到)
+    .bundle_config_url        = "https://prod-cn-alicdn-gamestarter.kurogame.com/launcher/game/10003_oLNgHF1CESo51DGHN2odtp40e3oI1HfZ/G152/official/index.json",
+    .bundle_config_backup_url = "https://prod-volcdn-gamestarter.kurogame.xyz/launcher/game/10003_oLNgHF1CESo51DGHN2odtp40e3oI1HfZ/G152/official/index.json",
+
+    // CDN: bundle_config.cdnList 里 K1==1 && K2==1 中 P 最大者
+    .active_cdn = "https://pcdownload-aliyun.aki-game.com/",
+    .cdn_list = .{
+        .{ .url = "https://pcdownload-aliyun.aki-game.com/", .P = 8714, .K1 = 1, .K2 = 1 },
+        .{ .url = "https://pcdownload-qcloud.aki-game.com/", .P = 0, .K1 = 1, .K2 = 1 },
+        .{ .url = "https://pcdownload-huoshan.aki-game.com/", .P = 1677, .K1 = 1, .K2 = 1 },
+    },
+
+    // 每个 pack: 绝对 indexFile URL + 绝对 baseUrl (下载 URL = baseUrl + dest)
+    .resource_packs = .{
+        .common = .{
+            .version        = "3.7.0",
+            .index_file     = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/common/indexFile.json",
+            .index_file_md5 = "c6278a8e03d61cdb9eb9864fd84897b6",
+            .base_url       = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/zip/",
+            .size           = 40743336731,
+            .uncompress_size = 40743336731,
+            .patch_type     = "patch",
+            .patch_config   = .{},
+        },
+        .hd = .{
+            .version        = "3.7.0",
+            .index_file     = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/hd/indexFile.json",
+            .index_file_md5 = "4f062fb8220bde7ef45707746869750b",
+            .base_url       = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/zip/",
+            .size           = 45713445823,
+            .uncompress_size = 45713445823,
+            .patch_type     = "patch",
+            .patch_config   = .{},
+        },
+        .sd = .{
+            .version        = "3.7.0",
+            .index_file     = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/sd/indexFile.json",
+            .index_file_md5 = "3a629d73856cd1c7a163455993fc49dc",
+            .base_url       = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/zip/",
+            .size           = 21973376250,
+            .uncompress_size = 21973376250,
+            .patch_type     = "patch",
+            .patch_config   = .{},
+        },
+        .uhd = .{
+            .version        = "3.7.0",
+            .index_file     = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/uhd/indexFile.json",
+            .index_file_md5 = "bb8104efa17446c5cac8f35f1593fe59",
+            .base_url       = "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.7.0/983fc4b836c240319aa3a0fc2c9f8514/zip/",
+            .size           = 66036274508,
+            .uncompress_size = 66036274508,
+            .patch_type     = "patch",
+            .patch_config   = .{},
+        },
+    },
+
+    // 档位组成: 完整档 = 这些 pack 的并集
+    .bundles = .{
+        .HD = .{ .resource_packs = .{ "common", "hd" } },
+        .SD = .{ .resource_packs = .{ "common", "sd" } },
+        .UHD = .{ .resource_packs = .{ "common", "uhd" } },
+    },
+
+    // 装完后官方启动器识别档位所需的本地登记文件
+    .install_markers = .{
+        .bundles_entry = "launcherDownloadConfig.json -> bundles[<TIER>] = { version, state, resourcePacks }",
+        .pack_version  = "launcherDownloadConfig/<tier>.json = { packName, version }",
+    },
+}
