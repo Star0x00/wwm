@@ -23,12 +23,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mlugg/setup-zig@v2
-        with:
-          version: 0.17.0
-
       - name: Build
-        run: zig build -Dtarget=${{ matrix.target }} -Doptimize=ReleaseFast --prefix out
+        run: |
+          set -euo pipefail
+          curl -fsSL https://mise.run | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          mise trust
+          mise install
+          mise exec -- zig version
+          mise exec -- zig build -Dtarget=${{ matrix.target }} -Doptimize=ReleaseFast --prefix out
 
       - name: Package
         run: |
